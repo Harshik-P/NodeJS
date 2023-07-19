@@ -1,5 +1,6 @@
 const express = require("express");
 
+const rateLimiter = require("../helpers/rateLimiter");
 const {
   createNewBlog,
   getAllBlogs,
@@ -9,9 +10,9 @@ const {
 
 const router = express.Router();
 
-router.post("/new-blog", createNewBlog);
-router.get("/getAllBlogs", getAllBlogs);
-router.get("/getAllBlogsByUser", getAllBlogsByUser);
-router.get("/getBlogById", getBlogById);
+router.post("/new-blog", rateLimiter(60, 10), createNewBlog);
+router.get("/getAllBlogs", rateLimiter(60, 10), getAllBlogs);
+router.get("/getAllBlogsByUser", rateLimiter(60, 10), getAllBlogsByUser);
+router.get("/getBlogById", rateLimiter(60, 10), getBlogById);
 
 module.exports = router;

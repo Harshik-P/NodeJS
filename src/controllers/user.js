@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const User = require("../../models/user");
+const { sendEmailUsingSendgrid } = require("../helpers/sendgrid");
 
 const { SECRET_KEY } = process.env;
 
@@ -9,20 +10,21 @@ const register = async (req, res) => {
   try {
     const { userName, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await User.create({
-        userName,
-        email,
-        password: hashedPassword,
+    const user = await User.create({
+      userName,
+      email,
+      password: hashedPassword,
+    });
+
+    if (user) {
+      const token = jwt.sign({ userName: user.userName }, SECRET_KEY, {
+        expiresIn: "3h",
       });
+      res.cookie("auth_token", token);
+      sendEmailUsingSendgrid(email, userName);
+    }
 
-      if (user) {
-        const token = jwt.sign({ userName: user.userName }, SECRET_KEY, {
-          expiresIn: "3h",
-        });
-        res.cookie("auth_token", token);
-      }
-
-      return res.status(201).json(user);
+    return res.status(201).json(user);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal server error" });
