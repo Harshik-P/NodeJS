@@ -1,7 +1,7 @@
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-export const sendEmailUsingSendgrid = async (recipientEmail, recipientName) => {
+const sendEmailUsingSendgrid = async (recipientEmail, recipientName) => {
   const msg = {
     to: recipient,
     from: {
@@ -23,3 +23,5 @@ export const sendEmailUsingSendgrid = async (recipientEmail, recipientName) => {
       console.error(error);
     });
 };
+
+module.exports = sendEmailUsingSendgrid;
